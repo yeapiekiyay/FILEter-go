@@ -1,14 +1,16 @@
 language: go
 go:
-- 1.5.3
-- release
-- tip
+  - 1.5.3
+  - release
+  - tip
+before_install:
+  - go get github.com/axw/gocov/gocov
+  - go get github.com/mattn/goveralls
+  - if ! go get github.com/golang/tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
 install:
-- go get golang.org/x/tools/cmd/cover github.com/mattn/goveralls github.com/docopt/docopt-go
+  - go get github.com/docopt/docopt-go
 script:
-- go test -v ./...
-- go test -coverprofile=.coverprofile .
-- goveralls -coverprofile=.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN
+  - $HOME/gopath/bin/goveralls -service=travis-ci
 env:
   global:
     secure: 2Y5m1ZTzBpwm3KXFeFkFOG8+X95X7b3ft3hKm07gYbo1dSMARftObkEcCi+XPD0dCJA738lxnfsZ81A/QNfO650GxlEgK70P9qAB3yf5+x3ptm9eWbrqyLLRkFJicbTF7RkFs7IVaYYZGsSm+Dfi63w0drxQUNrWOhtpYag7ZtYN0Aj4rqqhxnj/Smpz6tH1LKbV0GLwvucdjyFSKqHZqxekDB1e1HVwsrwTVriypqj2zsaLTxHUvmnS3ZGS4r9ap+imbxfFU90K9kcn+YYX/oYcwOwgWHwFiA0bKLM83sW2AeJzhCG1Te44EXDBH+CNgiudUcsSl3utANmcS0A1kf99oM+2Z0zWyKhh8VGULs9+mtBFvcocTaS9Vx19hpV42UEELvgYrpMCpShXiJ5xdGLfYhAoztCDzgVK+JjhNTIb+CX3C4RQwOjkbJ8YkWQrMgvR4XbljcO+0pU9NW2SGlN6qpVYmu3aEhpGAPOSsIcxJTUz92PLt8kbYvfdo9btQ0XhMBi069Q52OaAivd700U41Tkl2zxHKmy9Md/tellwoYW8Pww51oz8CpB72yhfF0rGdXwPKg9cXriQ9wZoIQXwNfKKf6NBDKfCiUHCmsRkX25RuoFrl0AhmT0uWIULwUrW62/H9IX8w9QKTKBB3XWjpBIKZAawPtsTJldNDD0=
