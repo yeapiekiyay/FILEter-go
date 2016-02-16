@@ -1,0 +1,18 @@
+language: go
+
+go:
+  - 1.5.3
+
+env:
+  global:
+    - PATH=$HOME/gopath/bin:$PATH
+
+install:
+  - go get golang.org/x/tools/cmd/cover github.com/mattn/goveralls github.com/docopt/docopt-go
+#  - go get -v github.com/gosuri/uiprogress
+
+script:
+  - go test -coverprofile=.coverprofile .
+  - goveralls -coverprofile=.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN
+
+secure: "2TzQVx0U37A3LgEJlWMvS92lvzY3zeW4Z+ptOnxJJ+2t+IQtcXAte0Z1aS224JvpqHBLOnWjDOyzHrUaJ8C2Hq65aMpILkakBaYNYchNvLwDYwgD8s6ActD/lhPa7Bkooe4ktlJ5ARWXyvVH/TbqB31hsaq6SKvqqRm/DD5uJUkQOhxml5MiRDxRFQcDU63X9ONUtrpFmbfybgcuFsjAxGwEtRrId6YPHDd2fA5xWe9XTgCPA3SQ9zoYyjQUiQ2NL1b9Z9jWJMOdLBpOGpvEUAW22GEwagp/QmnfqbsiybKtJqsTACRogAo0ke3koXY+UfVFzABjnRoxJ+imYRcnEGk+myOM0buJeootCXOCXys6niAXOIrN3Cm1Xv6NuxIs9ph57mMSNA/W6YBAa/gE6yFC2ZHIiRiKIfo/Bbk0yC9cEnC0FbebIviXjwuzN37/laFwP6AcagA1kW57VYgt8T0Ha2ffM/l2kvtRrAPO+Wyeu2ZpCgQ0HKt/7yXb8RpSktsYNe2YBo+TZ43XS6aVeWct5UXab7XG1gAPr1y4rW95NuRIb+egjpRJwPgY94aRp6iyIdNHh6G7MDiWu2JGEU1yunT+NHj0x1Iy6J2hmS6lXQWJbrKEsTOTN8os0MiY9JU0blj68u4/wnTXAs2RjjIZ8KKf3b2+z46DkZ2T/L0="
