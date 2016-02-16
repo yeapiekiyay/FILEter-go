@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/yeapiekiyay/FILEter-go.svg?branch=master)](https://travis-ci.org/yeapiekiyay/FILEter-go) [![Coverage Status](https://coveralls.io/repos/github/yeapiekiyay/FILEter-go/badge.svg?branch=master)](https://coveralls.io/github/yeapiekiyay/FILEter-go?branch=master)
+
 # FILEter-go
 A flat file filtering utililty written in Go. Yay for alliteration!
 
