@@ -2,16 +2,19 @@ language: go
 
 go:
   - 1.5.3
+  - release
+  - tip
 
-env:
-  global:
-    - PATH=$HOME/gopath/bin:$PATH
+# env:
+#   global:
+#     - PATH=$HOME/gopath/bin:$PATH
 
 install:
   - go get golang.org/x/tools/cmd/cover github.com/mattn/goveralls github.com/docopt/docopt-go
 #  - go get -v github.com/gosuri/uiprogress
 
 script:
+  - go test -v ./...
   - go test -coverprofile=.coverprofile .
   - goveralls -coverprofile=.coverprofile -service=travis-ci -repotoken $COVERALLS_TOKEN
 
