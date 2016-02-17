@@ -9,14 +9,16 @@ func main() {
 	usage := `FILEter - A flat file filtering utility.
 
 	Usage:
-	  FILEter -i <inputFile> [-o <outputFile>] [--] <filter>...
-	  FILEter --inputFile <inputFile> [--outputFile <outputFile>] [--] <filter>...	  
+	  FILEter -i <inputFile> [-o <outputFile>] [-s <startIndex>] [-e <endIndex>] [--] <filter>...
+	  FILEter --inputFile <inputFile> [--outputFile <outputFile>] [--outputStartIndex <startIndex>] [--outputEndIndex <endIndex>] [--] <filter>...	  
 	  FILEter (-h | --help)
 	  FILEter (-v | --version)
 
 	Options:
 	  -i --inputFile  		The file to be filtered.
 	  -o --outputFile	  	Optional. The file to write matching results to.
+	  -s --outputStartIndex  	Optional. The index in each line that passes the filters at which to start writing to the output file.
+	  -e --outputEndIndex  	Optional. The index in each line that passes the filters at which to stop writing to the output file.
 	  -h --help  		Show this screen.
 	  -v --version  		Show version.
 
