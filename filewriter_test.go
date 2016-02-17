@@ -10,10 +10,10 @@ import (
 func TestWriteLine(t *testing.T) {
 	path := "outFile.test"
 	cases := []struct {
-		line string
+		line                     string
 		startIndex, outputLength int
-		expected string
-	} {
+		expected                 string
+	}{
 		{"Write all of me", 0, 0, "Write all of me"},
 		{"Write this", 6, 0, "this"},
 		{"This will be written", 0, 4, "This"},
@@ -26,8 +26,8 @@ func TestWriteLine(t *testing.T) {
 			t.Errorf("Encountered an error while testing WriteLine() for path %q. Error: %q", path, err)
 		}
 
-		WriteLine(c.line, path, c.startIndex, c.outputLength)
-		
+		WriteLine(c.line, file, c.startIndex, c.outputLength)
+
 		scanner := bufio.NewScanner(file)
 		// We only care about the first line.
 		if scanner.Scan() != true {
@@ -43,4 +43,21 @@ func TestWriteLine(t *testing.T) {
 	}
 	// Cleanup
 	os.Remove(path)
+}
+
+func BenchmarkWriteLine(b *testing.B) {
+	// Perform setup
+	line := "This is a test line to perform a fancy shmancy benchmark test"
+	startIndex, outputLength := 0, 0
+	path := "outFile.test"
+	file, err := os.Create(path)
+	if err != nil {
+		b.Errorf("Encountered an error while benchmarking WriteLine() for path %q. Error: %q", path, err)
+	}
+	// Reset the timer
+	b.ResetTimer()
+	// Run benchmark
+	for i := 0; i < b.N; i++ {
+		WriteLine(line, file, startIndex, outputLength)
+	}
 }

@@ -4,22 +4,23 @@ import "testing"
 
 func TestParseLine(t *testing.T) {
 	cases := []struct {
-		line string
-		filters map[string][]int
+		line     string
+		filters  map[string][]int
 		expected bool
-	} {
-		// Test edges of startIndex and endIndex filter values
-		{"123456789", map[string][]int { "12": []int{0, 1}}, true},
-		{"123456789", map[string][]int { "1": []int{0, 1}}, true},
-		{"123456789", map[string][]int { "2": []int{0, 1}}, true},
-		// Test empty filter value
-		{"123456789", map[string][]int { "": []int{0, 1}}, false},
+	}{
+		// Test edges of startIndex and length filter values
+		{"123456789", map[string][]int{"12": []int{0, 10}}, true},
+		{"123456789", map[string][]int{"12": []int{0, 9}}, true},
+		{"123456789", map[string][]int{"1": []int{0, 2}}, true},
+		{"123456789", map[string][]int{"2": []int{0, 2}}, true},
+		// // Test empty filter value
+		// {"123456789", map[string][]int{"": []int{0, 1}}, false},
 		// Test unmatched filter value
-		{"abcdefg1234567", map[string][]int { "value": []int{0, 1}}, false},
-		// Test filter with no endIndex value 
-		{"SearchEverythingFromStartIndexOn", map[string][]int {"Everything": []int{0}}, true},
-		{"SearchEverythingFromStartIndexOn", map[string][]int {"Everything": []int{6}}, true},
-		{"SearchEverythingFromStartIndexOn", map[string][]int {"Everything": []int{15}}, false},
+		{"abcdefg1234567", map[string][]int{"value": []int{0, 1}}, false},
+		// Test filter with no endIndex value
+		{"SearchEverythingFromStartIndexOn", map[string][]int{"Everything": []int{0}}, true},
+		{"SearchEverythingFromStartIndexOn", map[string][]int{"Everything": []int{6}}, true},
+		{"SearchEverythingFromStartIndexOn", map[string][]int{"Everything": []int{15}}, false},
 	}
 	for _, c := range cases {
 		got := ParseLine(c.line, c.filters)
@@ -36,7 +37,7 @@ func BenchmarkParseLine(b *testing.B) {
 	// Reset the timer
 	b.ResetTimer()
 	// Run benchmark
-	for i:= 0; i < b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		ParseLine(line, filter)
 	}
 }

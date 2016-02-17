@@ -2,10 +2,10 @@ package main
 
 import (
 	// "bufio"
-	// "os"
+	"os"
 	// "strings"
 )
 
-func WriteLine(line, path string, startIndex, outputLength int) {
+func WriteLine(line string, file *os.File, startIndex, outputLength int) {
 
 }
