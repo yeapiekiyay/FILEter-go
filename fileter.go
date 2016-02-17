@@ -1,34 +1,57 @@
 package main
 
 import (
-	"fmt"
-	"github.com/docopt/docopt-go"
+	"github.com/alexflint/go-arg"
+	"strconv"
+	"strings"
 )
 
 func main() {
-	usage := `FILEter - A flat file filtering utility.
+	var args struct {
+		InputFile        string   `arg:"-i,required,help: The input file to filter."`
+		OutputFile       string   `arg:"-o,help: The output file to export lines matching the filters to."`
+		OutputStartIndex int      `arg:"-s,help: The index of the character in each line that matches to start exporting at."`
+		OutputLength     int      `arg:"-l,help: The number of characters from the outputStartIndex to export in each matching line."`
+		Filter           []string `arg:"positional,help: One or more filters separated by spaces in the format "value,startIndex[,length].""`
+	}
+	args.OutputFile = "filtered.out"
+	args.OutputStartIndex = 0
+	args.OutputLength = 0
+	p := arg.MustParse(&args)
 
-	Usage:
-	  FILEter -i <inputFile> [-o <outputFile>] [-s <startIndex>] [-l <length>] [--] <filter>...
-	  FILEter --inputFile <inputFile> [--outputFile <outputFile>] [--outputStartIndex <startIndex>] [--outputLength <length>] [--] <filter>...	  
-	  FILEter (-h | --help)
-	  FILEter (-v | --version)
+	var filters = make(map[string][]int)
+	if args.InputFile == "" {
+		p.Fail("You must provide an inputFile.")
+	}
+	if len(args.Filter) == 0 {
+		p.Fail("At least one filter must be provided.")
+	}
+	for _, f := range args.Filter {
+		splitString := strings.Split(f, ",")
+		if len(splitString) < 2 {
+			p.Fail("Each filter must have a value and a startIndex.")
+		}
+		if splitString[0] == "" {
+			p.Fail("Each filter must have a value and a startIndex.")
+		}
 
-	Options:
-	  -i --inputFile  		The file to be filtered.
-	  -o --outputFile	  	Optional. The file to write matching results to.
-	  -s --outputStartIndex  	Optional. The index in each line that passes the filters at which to start writing to the output file.
-	  -l --outputLength  	Optional. The length of the output from the startIndex in each line that passes the filters to write to the output file.
-	  -h --help  		Show this screen.
-	  -v --version  		Show version.
+		value := splitString[0]
+		startIndex64, err := strconv.ParseInt(splitString[1], 10, 32)
+		if err != nil {
+			panic("An error occurred while trying to parse one of the filter's startIndex values. Please check your arguments and try again.")
+		}
+		startIndex := int(startIndex64)
+		length := int(0)
+		if len(splitString) == 3 {
+			length64, err := strconv.ParseInt(splitString[2], 10, 32)
+			length = int(length64)
+			if err != nil {
+				panic("An error occurred while trying to parse one of the filter's length values. Please check your arguments and try again.")
+			}
+		}
 
-	Filter argument explained:
-	  The filter argument must be in the following format: value,startIndex[,length]
-	  The value is the value to be matched in each line of the file being processed. Each value must be unique.
-	  The startIndex is the index of the character in the line to begin searching for the value.
-	  The length is the length of the string to search for the value, starting from the startIndex. This value is optional.
-	  The line will be exported if for each unique startIndex, one of the corresponding filters matches.`
+		filters[value] = []int{startIndex, length}
+	}
 
-	arguments, _ := docopt.Parse(usage, nil, true, "FILEter 0.1", false)
-	fmt.Println(arguments)
+	ParseFile(args.InputFile, args.OutputFile, filters, args.OutputStartIndex, args.OutputLength)
 }
