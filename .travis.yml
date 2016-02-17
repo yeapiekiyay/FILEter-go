@@ -8,7 +8,7 @@ before_install:
   - go get github.com/mattn/goveralls
   - if ! go get github.com/golang/tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
 install:
-  - go get github.com/docopt/docopt-go
+  - go get github.com/alexflint/go-arg
 script:
   - $HOME/gopath/bin/goveralls -service=travis-ci
 env:
