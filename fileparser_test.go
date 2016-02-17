@@ -24,7 +24,7 @@ func TestParseLine(t *testing.T) {
 	for _, c := range cases {
 		got := ParseLine(c.line, c.filters)
 		if got != c.expected {
-			t.Errorf("ReadLine(%q, %q) == %q, expected %q", c.line, c.filters, got, c.expected)
+			t.Errorf("ReadLine(%q, %q) == %t, expected %t", c.line, c.filters, got, c.expected)
 		}
 	}
 }

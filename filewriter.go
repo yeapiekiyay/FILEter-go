@@ -1,9 +1,11 @@
 package main
 
 import (
-
+	// "bufio"
+	// "os"
+	// "strings"
 )
 
-func WriteLine() {
-	
+func WriteLine(line, path string, startIndex, outputLength int) {
+
 }
