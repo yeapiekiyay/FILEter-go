@@ -8,7 +8,8 @@ import (
 )
 
 func TestWriteLine(t *testing.T) {
-	path := "outFile.test"
+	pwd, _ := os.Getwd()
+	path := pwd + "\\outFile.test"
 	cases := []struct {
 		line                     string
 		startIndex, outputLength int
@@ -19,28 +20,28 @@ func TestWriteLine(t *testing.T) {
 		{"This will be written", 0, 4, "This"},
 		{"Foolish sucka", 4, 8, "ish suck"},
 	}
+	file, err := os.Create(path)
 	for _, c := range cases {
-		// Create will truncate the file if it exists.
-		file, err := os.Create(path)
 		if err != nil {
 			t.Errorf("Encountered an error while testing WriteLine() for path %q. Error: %q", path, err)
 		}
-
 		WriteLine(c.line, file, c.startIndex, c.outputLength)
-
-		scanner := bufio.NewScanner(file)
-		// We only care about the first line.
+	}
+	file.Close()
+	file, err = os.Open(path)
+	scanner := bufio.NewScanner(file)
+	for _, c := range cases {
 		if scanner.Scan() != true {
 			t.Errorf("WriteLine(%q, %q, %d, %d) did not write to the file, expected %q", c.line, path, c.startIndex, c.outputLength, c.expected)
 			file.Close()
 			continue
 		}
-		line := scanner.Text()
-		if strings.Compare(c.expected, strings.TrimSpace(line)) != 0 {
+		line := strings.TrimSpace(scanner.Text())
+		if strings.Compare(c.expected, line) != 0 {
 			t.Errorf("WriteLine(%q, %q, %d, %d) == '%q', expected %q", c.line, path, c.startIndex, c.outputLength, line, c.expected)
 		}
-		file.Close()
 	}
+	file.Close()
 	// Cleanup
 	os.Remove(path)
 }
