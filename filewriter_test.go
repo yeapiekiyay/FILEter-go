@@ -9,7 +9,7 @@ import (
 
 func TestWriteLine(t *testing.T) {
 	pwd, _ := os.Getwd()
-	path := pwd + "\\outFile.test"
+	path := pwd + "\\TestWriteLine.out"
 	cases := []struct {
 		line                     string
 		startIndex, outputLength int
@@ -50,7 +50,7 @@ func BenchmarkWriteLine(b *testing.B) {
 	// Perform setup
 	line := "This is a test line to perform a fancy shmancy benchmark test"
 	startIndex, outputLength := 0, 0
-	path := "outFile.test"
+	path := "BenchmarkWriteLine.out"
 	file, err := os.Create(path)
 	if err != nil {
 		b.Errorf("Encountered an error while benchmarking WriteLine() for path %q. Error: %q", path, err)

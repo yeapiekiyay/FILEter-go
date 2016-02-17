@@ -1,12 +1,45 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
+	"os"
 	"strings"
 	"unicode/utf8"
 )
 
-func ParseFile(fileName string) {
-
+func ParseFile(inFilePath, outFilePath string, filters map[string][]int, outputStartIndex, outputLength int) {
+	inFile, err := os.Open(inFilePath)
+	defer inFile.Close()
+	if err != nil {
+		panic(fmt.Sprintf("The input file could not be opened. Input file: %q", inFilePath))
+	}
+	outFile, err := os.Create(outFilePath)
+	defer outFile.Close()
+	if err != nil {
+		panic(fmt.Sprintf("The output file could not be created. Output file: %q", outFilePath))
+	}
+	scanner := bufio.NewScanner(inFile)
+	// var writeLock = make(chan int, 1)
+	for scanner.Scan() {
+		text := scanner.Text()
+		// Works synchronously...
+		writeLine := ParseLine(text, filters)
+		if writeLine {
+			WriteLine(text, outFile, outputStartIndex, outputLength)
+		}
+		// go func(line string, filters map[string][]int) {
+		// 	writeLine := ParseLine(line, filters)
+		// 	if writeLine {
+		// 		counter++
+		// 		fmt.Sprintln(counter)
+		// 		// // Lock access to write to the file
+		// 		writeLock <- 1
+		// 		WriteLine(line, outFile, outputStartIndex, outputLength)
+		// 		<-writeLock
+		// 	}
+		// }(text, filters)
+	}
 }
 
 func ParseLine(line string, filters map[string][]int) (exportLine bool) {
