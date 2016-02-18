@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"os"
+	"strings"
 	"testing"
 )
 
@@ -28,6 +31,50 @@ func TestNewArguments(t *testing.T) {
 	}
 }
 
+func TestParseArguments(t *testing.T) {
+	cases := []struct {
+		args       Arguments
+		shouldFail bool
+	}{
+		{*NewArguments("test.in", "test.out", 0, 0, []string{"test,0,0"}), false},
+		{*NewArguments("test.in", "test.out", 0, 0, []string{"test,0,0", "test2,0,0"}), false},
+		{*NewArguments("test.in", "test.out", 0, 0, []string{"test,0,0"}), false},
+		// Can't actually test invalid arguments because p.Fail will exit the program...
+	}
+	for _, c := range cases {
+		os.Args = nil
+		os.Args = append(os.Args, "fileter")
+		if len(c.args.InputFile) > 0 {
+			os.Args = append(os.Args, "-i")
+			os.Args = append(os.Args, c.args.InputFile)
+		}
+		if len(c.args.OutputFile) > 0 {
+			os.Args = append(os.Args, "-o")
+			os.Args = append(os.Args, c.args.OutputFile)
+		}
+		if c.args.OutputStartIndex > 0 {
+			os.Args = append(os.Args, "-s")
+			os.Args = append(os.Args, fmt.Sprintf("%d", c.args.OutputStartIndex))
+		}
+		if c.args.OutputLength > 0 {
+			os.Args = append(os.Args, "-l")
+			os.Args = append(os.Args, fmt.Sprintf("%d", c.args.OutputLength))
+		}
+		for _, f := range c.args.Filters {
+			os.Args = append(os.Args, f)
+		}
+		// Run ParseArguments
+		got := ParseArguments()
+		if strings.Compare(got.InputFile, c.args.InputFile) != 0 ||
+			strings.Compare(got.OutputFile, c.args.OutputFile) != 0 ||
+			got.OutputStartIndex != c.args.OutputStartIndex ||
+			got.OutputLength != c.args.OutputLength ||
+			!CompareStringArrays(got.Filters, c.args.Filters) {
+			t.Errorf("ParseArguments() == %+v, expected %+v", got, c.args)
+		}
+	}
+}
+
 func TestMain(t *testing.T) {
 	t.Skip("Not testing main since no functionality resides here. All functional components will be unit tested.")
 }
@@ -38,11 +85,15 @@ func TestValidateArguments(t *testing.T) {
 		expected bool
 	}{
 		{*NewArguments("inFile.test", "outFile.test", 0, 0, []string{"A,0,0"}), true},
+		{*NewArguments("", "outFile.test", 0, 0, []string{"A,0,0"}), false},
+		{*NewArguments("inFile.test", "outFile.test", 0, 0, []string{}), false},
+		{*NewArguments("inFile.test", "outFile.test", 0, 0, []string{"A"}), false},
+		{*NewArguments("inFile.test", "outFile.test", 0, 0, []string{",0"}), false},
 	}
 	for _, c := range cases {
 		got, _ := ValidateArguments(c.args)
 		if got != c.expected {
-			t.Errorf("Error testing ValidateArguments for Arguments %q. Expected %t, got %t", c.args, c.expected, got)
+			t.Errorf("Error testing ValidateArguments for Arguments %+v. Expected %t, got %t", c.args, c.expected, got)
 		}
 	}
 }

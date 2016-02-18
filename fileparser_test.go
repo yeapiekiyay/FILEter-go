@@ -30,7 +30,7 @@ func TestParseFile(t *testing.T) {
 		writer.Flush()
 	}
 	file.Close()
-	filters := map[string][]int{"dead": []int{0}}
+	filters := map[string][]int{"dead": []int{21, 50}}
 	ParseFile(path, outPath, filters, 0, 0)
 	file, err = os.Open(outPath)
 	if err != nil {
@@ -60,6 +60,9 @@ func TestParseLine(t *testing.T) {
 		{"123456789", map[string][]int{"12": []int{0, 9}}, true},
 		{"123456789", map[string][]int{"1": []int{0, 2}}, true},
 		{"123456789", map[string][]int{"2": []int{0, 2}}, true},
+		{"123456789", map[string][]int{"2": []int{0}}, true},
+		// Test line shorter than startIndex
+		{"abcde", map[string][]int{"abc": []int{9000, 2}}, false},
 		// Test empty filter value
 		{"123456789", map[string][]int{"": []int{0, 1}}, true},
 		// Test unmatched filter value
@@ -72,7 +75,7 @@ func TestParseLine(t *testing.T) {
 	for _, c := range cases {
 		got := ParseLine(c.line, c.filters)
 		if got != c.expected {
-			t.Errorf("ReadLine(%q, %q) == %t, expected %t", c.line, c.filters, got, c.expected)
+			t.Errorf("ReadLine(%q, %+v) == %t, expected %t", c.line, c.filters, got, c.expected)
 		}
 	}
 }

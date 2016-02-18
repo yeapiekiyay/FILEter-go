@@ -6,19 +6,13 @@ import (
 	"strings"
 )
 
-type Arguments struct {
-	InputFile        string   `arg:"-i,required,help: The input file to filter."`
-	OutputFile       string   `arg:"-o,help: The output file to export lines matching the filters to."`
-	OutputStartIndex int      `arg:"-s,help: The index of the character in each line that matches to start exporting at."`
-	OutputLength     int      `arg:"-l,help: The number of characters from the outputStartIndex to export in each matching line."`
-	Filters          []string `arg:"positional,help: One or more filters separated by spaces in the format "value,startIndex[,length].""`
-}
-
-func NewArguments(inputFile, outputFile string, outputStartIndex, outputLength int, filters []string) *Arguments {
-	return &Arguments{inputFile, outputFile, outputStartIndex, outputLength, filters}
-}
-
 func main() {
+	args := ParseArguments()
+	filters := ParseFilters(args.Filters)
+	ParseFile(args.InputFile, args.OutputFile, filters, args.OutputStartIndex, args.OutputLength)
+}
+
+func ParseArguments() Arguments {
 	var args Arguments
 	args.OutputFile = "filtered.out"
 	args.OutputStartIndex = 0
@@ -31,9 +25,7 @@ func main() {
 		p.Fail(err)
 	}
 
-	filters := ParseFilters(args.Filters)
-
-	ParseFile(args.InputFile, args.OutputFile, filters, args.OutputStartIndex, args.OutputLength)
+	return args
 }
 
 func ValidateArguments(args Arguments) (bool, string) {
@@ -79,4 +71,16 @@ func ParseFilters(filters []string) map[string][]int {
 	}
 
 	return newFilters
+}
+
+func NewArguments(inputFile, outputFile string, outputStartIndex, outputLength int, filters []string) *Arguments {
+	return &Arguments{inputFile, outputFile, outputStartIndex, outputLength, filters}
+}
+
+type Arguments struct {
+	InputFile        string   `arg:"-i,required,help: The input file to filter."`
+	OutputFile       string   `arg:"-o,help: The output file to export lines matching the filters to."`
+	OutputStartIndex int      `arg:"-s,help: The index of the character in each line that matches to start exporting at."`
+	OutputLength     int      `arg:"-l,help: The number of characters from the outputStartIndex to export in each matching line."`
+	Filters          []string `arg:"positional,help: One or more filters separated by spaces in the format value.startIndex[.length] with commas in place of periods."`
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"unicode/utf8"
 )
 
 func ParseFile(inFilePath, outFilePath string, filters map[string][]int, outputStartIndex, outputLength int) {
@@ -49,13 +48,16 @@ func ParseLine(line string, filters map[string][]int) (exportLine bool) {
 	// If we get a match, skip the rest of the filters for this starting index.
 	for k, v := range filters {
 		filter := k
-		lineLength := utf8.RuneCountInString(line)
+		lineLength := len(line)
 		startIndex := v[0]
 		searchString := line
+		if startIndex > lineLength {
+			continue
+		}
 		// If we have a length of > 1, we have a length argument for the filter.
 		if len(v) > 1 && v[1] > 0 && v[1] <= lineLength {
-			length := v[1]
-			searchString = line[startIndex:length]
+			endIndex := startIndex + v[1]
+			searchString = line[startIndex:endIndex]
 		} else {
 			searchString = line[startIndex:lineLength]
 		}
@@ -63,6 +65,9 @@ func ParseLine(line string, filters map[string][]int) (exportLine bool) {
 		filterMatches[startIndex] = filterMatches[startIndex] || strings.Contains(searchString, filter)
 	}
 	// Check if we didn't match any filters for each unique starting index.
+	if len(filterMatches) == 0 {
+		return false
+	}
 	for _, v := range filterMatches {
 		if v == false {
 			return false
