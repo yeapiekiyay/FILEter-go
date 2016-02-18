@@ -6,34 +6,59 @@ import (
 	"strings"
 )
 
+type Arguments struct {
+	InputFile        string   `arg:"-i,required,help: The input file to filter."`
+	OutputFile       string   `arg:"-o,help: The output file to export lines matching the filters to."`
+	OutputStartIndex int      `arg:"-s,help: The index of the character in each line that matches to start exporting at."`
+	OutputLength     int      `arg:"-l,help: The number of characters from the outputStartIndex to export in each matching line."`
+	Filters          []string `arg:"positional,help: One or more filters separated by spaces in the format "value,startIndex[,length].""`
+}
+
+func NewArguments(inputFile, outputFile string, outputStartIndex, outputLength int, filters []string) *Arguments {
+	return &Arguments{inputFile, outputFile, outputStartIndex, outputLength, filters}
+}
+
 func main() {
-	var args struct {
-		InputFile        string   `arg:"-i,required,help: The input file to filter."`
-		OutputFile       string   `arg:"-o,help: The output file to export lines matching the filters to."`
-		OutputStartIndex int      `arg:"-s,help: The index of the character in each line that matches to start exporting at."`
-		OutputLength     int      `arg:"-l,help: The number of characters from the outputStartIndex to export in each matching line."`
-		Filter           []string `arg:"positional,help: One or more filters separated by spaces in the format "value,startIndex[,length].""`
-	}
+	var args Arguments
 	args.OutputFile = "filtered.out"
 	args.OutputStartIndex = 0
 	args.OutputLength = 0
+
 	p := arg.MustParse(&args)
 
-	var filters = make(map[string][]int)
+	argumentsAreValid, err := ValidateArguments(args)
+	if !argumentsAreValid {
+		p.Fail(err)
+	}
+
+	filters := ParseFilters(args.Filters)
+
+	ParseFile(args.InputFile, args.OutputFile, filters, args.OutputStartIndex, args.OutputLength)
+}
+
+func ValidateArguments(args Arguments) (bool, string) {
 	if args.InputFile == "" {
-		p.Fail("You must provide an inputFile.")
+		return false, "You must provide an inputFile."
 	}
-	if len(args.Filter) == 0 {
-		p.Fail("At least one filter must be provided.")
+	if len(args.Filters) == 0 {
+		return false, "At least one filter must be provided."
 	}
-	for _, f := range args.Filter {
+	for _, f := range args.Filters {
 		splitString := strings.Split(f, ",")
 		if len(splitString) < 2 {
-			p.Fail("Each filter must have a value and a startIndex.")
+			return false, "Each filter must have a value and a startIndex."
 		}
 		if splitString[0] == "" {
-			p.Fail("Each filter must have a value and a startIndex.")
+			return false, "Each filter must have a value and a startIndex."
 		}
+	}
+	return true, ""
+}
+
+func ParseFilters(filters []string) map[string][]int {
+	var newFilters = make(map[string][]int)
+	for _, f := range filters {
+		splitString := strings.Split(f, ",")
 
 		value := splitString[0]
 		startIndex64, err := strconv.ParseInt(splitString[1], 10, 32)
@@ -50,8 +75,8 @@ func main() {
 			}
 		}
 
-		filters[value] = []int{startIndex, length}
+		newFilters[value] = []int{startIndex, length}
 	}
 
-	ParseFile(args.InputFile, args.OutputFile, filters, args.OutputStartIndex, args.OutputLength)
+	return newFilters
 }
